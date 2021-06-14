@@ -1,10 +1,12 @@
-package Graph;
+package GraphLevel1;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 
-public class GraphIsConnected {
+public class GraphIsCyclic {
     static class Edge {
         int src;
         int nbr;
@@ -16,16 +18,7 @@ public class GraphIsConnected {
             this.wt = wt;
         }
     }
-    public static int isGraphConnected(ArrayList<Edge>[] graph, int src, boolean[] visited) {
-        visited[src] = true;
-        int cans = 1;
-        for(Edge edge : graph[src]) {
-            if(!visited[edge.nbr]) {
-                cans +=isGraphConnected(graph, edge.nbr, visited);
-            }
-        }
-        return cans;
-    }
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -45,7 +38,31 @@ public class GraphIsConnected {
             graph[v2].add(new Edge(v2, v1, wt));
         }
 
-        int connections = isGraphConnected(graph, 0, new boolean[vtces]);
-        System.out.println(connections == vtces);
+        boolean[] visited = new boolean[graph.length];
+        boolean check = false;
+        for(int i=0; i<vtces; i++) {
+            if(!visited[i]) {
+                check = isCyclic(graph, i, visited);
+                if(check) break;
+            }
+
+        }
+        System.out.println(check);
+    }
+    public static boolean isCyclic(ArrayList<Edge>[] graph, int src, boolean[] visited) {
+
+        Queue<Integer> queue = new ArrayDeque<>();
+        queue.add(src);
+        while(!queue.isEmpty()) {
+            Integer node = queue.remove();
+            if(visited[node]) return true;
+            visited[node] = true;
+            for(Edge edge : graph[src]) {
+                if(!visited[edge.nbr]) {
+                    queue.add(edge.nbr);
+                }
+            }
+        }
+        return false;
     }
 }

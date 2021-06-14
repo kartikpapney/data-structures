@@ -1,11 +1,10 @@
-package Graph;
+package GraphLevel1;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 
-public class GraphHamiltonianPath {
+public class GraphGetConnectedComponents {
     static class Edge {
         int src;
         int nbr;
@@ -18,30 +17,16 @@ public class GraphHamiltonianPath {
         }
     }
 
-    public static void getHamiltonianPath(ArrayList<Edge>[] graph, int src, int start, HashSet<Integer> visited, String psf) {
-        if(visited.size() - 1 == graph.length) {
-            boolean cycle = false;
-            for(Edge edge : graph[src]) {
-                if(edge.nbr == start) {
-                    cycle = true;
-                    break;
-                }
-            }
-            if(cycle) {
-                System.out.println(psf+src+"*");
-            } else {
-                System.out.println(psf+src+".");
-            }
-            return;
-        }
+    public static void getConnectedComponents(ArrayList<Edge>[] graph, int src, boolean[] visited, ArrayList<Integer> comps) {
+        comps.add(src);
+        visited[src] = true;
         for(Edge edge : graph[src]) {
-            if(!visited.contains(edge.nbr)) {
-                visited.add(edge.nbr);
-                getHamiltonianPath(graph, edge.nbr, start, visited, psf+src);
-                visited.remove(edge.nbr);
+            if(!visited[edge.nbr]) {
+                getConnectedComponents(graph, edge.nbr, visited, comps);
             }
         }
     }
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -61,10 +46,16 @@ public class GraphHamiltonianPath {
             graph[v2].add(new Edge(v2, v1, wt));
         }
 
-        int src = Integer.parseInt(br.readLine());
+        ArrayList<ArrayList<Integer>> comps = new ArrayList<>();
+        boolean[] visited = new boolean[vtces];
+        for(int i=0; i<vtces; i++) {
+            if(!visited[i]) {
+                ArrayList<Integer> ccomp = new ArrayList<>();
+                getConnectedComponents(graph, i, visited, ccomp);
+                comps.add(ccomp);
+            }
+        }
 
-        getHamiltonianPath(graph, src, src, new HashSet<>(), "");
+        System.out.println(comps);
     }
-
-
 }

@@ -1,12 +1,11 @@
-package Graph;
+package GraphLevel1;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Queue;
 
-public class GraphBfs {
+public class GraphFriendsPairing {
+
     static class Edge {
         int src;
         int nbr;
@@ -16,29 +15,16 @@ public class GraphBfs {
             this.nbr = nbr;
         }
     }
-    static class Pair {
-        int v;
-        String psf;
-        public Pair(int v, String psf) {
-            this.v = v;
-            this.psf = psf;
-        }
-    }
-    public static void bfs(ArrayList<Edge>[] graph, int src) {
-        boolean[] visited = new boolean[graph.length];
-        Queue<Pair> queue = new ArrayDeque<>();
-        queue.add(new Pair(src, "" + src));
-        while(!queue.isEmpty()) {
-            Pair node = queue.remove();
-            if(visited[node.v]) continue;
-            visited[node.v] = true;
-            System.out.println(node.v + "@" + node.psf);
-            for(Edge edge : graph[node.v]) {
-                if(!visited[edge.nbr]) {
-                    queue.add(new Pair(edge.nbr, node.psf + edge.nbr));
-                }
+
+    public static int getConnectedComponents(ArrayList<Edge>[] graph, int src, boolean[] visited) {
+        visited[src] = true;
+        int count = 1;
+        for(Edge edge : graph[src]) {
+            if(!visited[edge.nbr]) {
+                count += getConnectedComponents(graph, edge.nbr, visited);
             }
         }
+        return count;
     }
 
     public static void main(String[] args) throws Exception {
@@ -59,8 +45,20 @@ public class GraphBfs {
             graph[v2].add(new Edge(v2, v1));
         }
 
-        int src = Integer.parseInt(br.readLine());
-        bfs(graph, src);
-
+        ArrayList<Integer> comps = new ArrayList<>();
+        boolean[] visited = new boolean[vtces];
+        for(int i=0; i<vtces; i++) {
+            if(!visited[i]) {
+                comps.add(getConnectedComponents(graph, i, visited));
+            }
+        }
+        int cnt = 0;
+        for(int i=0; i<comps.size()-1; i++) {
+            for(int j=i+1; j<comps.size(); j++) {
+                cnt+=comps.get(i)*comps.get(j);
+            }
+        }
+        System.out.println(cnt);
     }
+
 }

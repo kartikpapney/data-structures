@@ -1,10 +1,10 @@
-package Graph;
+package GraphLevel1;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class GraphGetConnectedComponents {
+public class GraphPrintAllPath {
     static class Edge {
         int src;
         int nbr;
@@ -14,16 +14,6 @@ public class GraphGetConnectedComponents {
             this.src = src;
             this.nbr = nbr;
             this.wt = wt;
-        }
-    }
-
-    public static void getConnectedComponents(ArrayList<Edge>[] graph, int src, boolean[] visited, ArrayList<Integer> comps) {
-        comps.add(src);
-        visited[src] = true;
-        for(Edge edge : graph[src]) {
-            if(!visited[edge.nbr]) {
-                getConnectedComponents(graph, edge.nbr, visited, comps);
-            }
         }
     }
 
@@ -46,16 +36,25 @@ public class GraphGetConnectedComponents {
             graph[v2].add(new Edge(v2, v1, wt));
         }
 
-        ArrayList<ArrayList<Integer>> comps = new ArrayList<>();
-        boolean[] visited = new boolean[vtces];
-        for(int i=0; i<vtces; i++) {
-            if(!visited[i]) {
-                ArrayList<Integer> ccomp = new ArrayList<>();
-                getConnectedComponents(graph, i, visited, ccomp);
-                comps.add(ccomp);
+        int src = Integer.parseInt(br.readLine());
+        int dest = Integer.parseInt(br.readLine());
+
+        // write all your codes here
+        printAllPaths(graph, src, dest, new boolean[vtces + 1], "");
+    }
+    public static void printAllPaths(ArrayList<Edge>[] graph, int src, int dest, boolean[] visited, String asf) {
+        if(src == dest) {
+            System.out.println(asf+dest);
+            return;
+        }
+        visited[src] = true;
+        for(Edge edge : graph[src]) {
+            if(!visited[edge.nbr]) {
+                printAllPaths(graph, edge.nbr, dest, visited, asf+src);
             }
         }
-
-        System.out.println(comps);
+        visited[src] = false;
     }
+
+
 }
