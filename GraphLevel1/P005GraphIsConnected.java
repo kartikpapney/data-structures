@@ -3,9 +3,8 @@ package GraphLevel1;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 
-public class GraphHamiltonianPath {
+public class P005GraphIsConnected {
     static class Edge {
         int src;
         int nbr;
@@ -17,30 +16,15 @@ public class GraphHamiltonianPath {
             this.wt = wt;
         }
     }
-
-    public static void getHamiltonianPath(ArrayList<Edge>[] graph, int src, int start, HashSet<Integer> visited, String psf) {
-        if(visited.size() - 1 == graph.length) {
-            boolean cycle = false;
-            for(Edge edge : graph[src]) {
-                if(edge.nbr == start) {
-                    cycle = true;
-                    break;
-                }
-            }
-            if(cycle) {
-                System.out.println(psf+src+"*");
-            } else {
-                System.out.println(psf+src+".");
-            }
-            return;
-        }
+    public static int isGraphConnected(ArrayList<Edge>[] graph, int src, boolean[] visited) {
+        visited[src] = true;
+        int cans = 1;
         for(Edge edge : graph[src]) {
-            if(!visited.contains(edge.nbr)) {
-                visited.add(edge.nbr);
-                getHamiltonianPath(graph, edge.nbr, start, visited, psf+src);
-                visited.remove(edge.nbr);
+            if(!visited[edge.nbr]) {
+                cans +=isGraphConnected(graph, edge.nbr, visited);
             }
         }
+        return cans;
     }
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -61,10 +45,7 @@ public class GraphHamiltonianPath {
             graph[v2].add(new Edge(v2, v1, wt));
         }
 
-        int src = Integer.parseInt(br.readLine());
-
-        getHamiltonianPath(graph, src, src, new HashSet<>(), "");
+        int connections = isGraphConnected(graph, 0, new boolean[vtces]);
+        System.out.println(connections == vtces);
     }
-
-
 }

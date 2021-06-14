@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class GraphIsConnected {
+public class P004GraphGetConnectedComponents {
     static class Edge {
         int src;
         int nbr;
@@ -16,16 +16,17 @@ public class GraphIsConnected {
             this.wt = wt;
         }
     }
-    public static int isGraphConnected(ArrayList<Edge>[] graph, int src, boolean[] visited) {
+
+    public static void getConnectedComponents(ArrayList<Edge>[] graph, int src, boolean[] visited, ArrayList<Integer> comps) {
+        comps.add(src);
         visited[src] = true;
-        int cans = 1;
         for(Edge edge : graph[src]) {
             if(!visited[edge.nbr]) {
-                cans +=isGraphConnected(graph, edge.nbr, visited);
+                getConnectedComponents(graph, edge.nbr, visited, comps);
             }
         }
-        return cans;
     }
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -45,7 +46,16 @@ public class GraphIsConnected {
             graph[v2].add(new Edge(v2, v1, wt));
         }
 
-        int connections = isGraphConnected(graph, 0, new boolean[vtces]);
-        System.out.println(connections == vtces);
+        ArrayList<ArrayList<Integer>> comps = new ArrayList<>();
+        boolean[] visited = new boolean[vtces];
+        for(int i=0; i<vtces; i++) {
+            if(!visited[i]) {
+                ArrayList<Integer> ccomp = new ArrayList<>();
+                getConnectedComponents(graph, i, visited, ccomp);
+                comps.add(ccomp);
+            }
+        }
+
+        System.out.println(comps);
     }
 }

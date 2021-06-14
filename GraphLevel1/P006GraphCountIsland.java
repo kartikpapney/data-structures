@@ -3,7 +3,7 @@ package GraphLevel1;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-public class GraphCountIsland {
+public class P006GraphCountIsland {
     public static void countNumberOfIsland(int[][] arr, int i, int j) {
         if(i < 0 || j < 0 || i >= arr.length || j >= arr[0].length || arr[i][j] == 1) return;
         arr[i][j] = 1;

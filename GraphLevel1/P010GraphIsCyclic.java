@@ -2,9 +2,11 @@ package GraphLevel1;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 
-public class GraphGetConnectedComponents {
+public class P010GraphIsCyclic {
     static class Edge {
         int src;
         int nbr;
@@ -14,16 +16,6 @@ public class GraphGetConnectedComponents {
             this.src = src;
             this.nbr = nbr;
             this.wt = wt;
-        }
-    }
-
-    public static void getConnectedComponents(ArrayList<Edge>[] graph, int src, boolean[] visited, ArrayList<Integer> comps) {
-        comps.add(src);
-        visited[src] = true;
-        for(Edge edge : graph[src]) {
-            if(!visited[edge.nbr]) {
-                getConnectedComponents(graph, edge.nbr, visited, comps);
-            }
         }
     }
 
@@ -46,16 +38,31 @@ public class GraphGetConnectedComponents {
             graph[v2].add(new Edge(v2, v1, wt));
         }
 
-        ArrayList<ArrayList<Integer>> comps = new ArrayList<>();
-        boolean[] visited = new boolean[vtces];
+        boolean[] visited = new boolean[graph.length];
+        boolean check = false;
         for(int i=0; i<vtces; i++) {
             if(!visited[i]) {
-                ArrayList<Integer> ccomp = new ArrayList<>();
-                getConnectedComponents(graph, i, visited, ccomp);
-                comps.add(ccomp);
+                check = isCyclic(graph, i, visited);
+                if(check) break;
+            }
+
+        }
+        System.out.println(check);
+    }
+    public static boolean isCyclic(ArrayList<Edge>[] graph, int src, boolean[] visited) {
+
+        Queue<Integer> queue = new ArrayDeque<>();
+        queue.add(src);
+        while(!queue.isEmpty()) {
+            Integer node = queue.remove();
+            if(visited[node]) return true;
+            visited[node] = true;
+            for(Edge edge : graph[src]) {
+                if(!visited[edge.nbr]) {
+                    queue.add(edge.nbr);
+                }
             }
         }
-
-        System.out.println(comps);
+        return false;
     }
 }

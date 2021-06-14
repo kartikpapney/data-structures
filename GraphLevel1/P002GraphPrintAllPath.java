@@ -2,11 +2,9 @@ package GraphLevel1;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Queue;
 
-public class GraphIsCyclic {
+public class P002GraphPrintAllPath {
     static class Edge {
         int src;
         int nbr;
@@ -38,31 +36,25 @@ public class GraphIsCyclic {
             graph[v2].add(new Edge(v2, v1, wt));
         }
 
-        boolean[] visited = new boolean[graph.length];
-        boolean check = false;
-        for(int i=0; i<vtces; i++) {
-            if(!visited[i]) {
-                check = isCyclic(graph, i, visited);
-                if(check) break;
-            }
+        int src = Integer.parseInt(br.readLine());
+        int dest = Integer.parseInt(br.readLine());
 
-        }
-        System.out.println(check);
+        // write all your codes here
+        printAllPaths(graph, src, dest, new boolean[vtces + 1], "");
     }
-    public static boolean isCyclic(ArrayList<Edge>[] graph, int src, boolean[] visited) {
-
-        Queue<Integer> queue = new ArrayDeque<>();
-        queue.add(src);
-        while(!queue.isEmpty()) {
-            Integer node = queue.remove();
-            if(visited[node]) return true;
-            visited[node] = true;
-            for(Edge edge : graph[src]) {
-                if(!visited[edge.nbr]) {
-                    queue.add(edge.nbr);
-                }
+    public static void printAllPaths(ArrayList<Edge>[] graph, int src, int dest, boolean[] visited, String asf) {
+        if(src == dest) {
+            System.out.println(asf+dest);
+            return;
+        }
+        visited[src] = true;
+        for(Edge edge : graph[src]) {
+            if(!visited[edge.nbr]) {
+                printAllPaths(graph, edge.nbr, dest, visited, asf+src);
             }
         }
-        return false;
+        visited[src] = false;
     }
+
+
 }

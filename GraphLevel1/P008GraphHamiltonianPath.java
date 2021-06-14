@@ -3,8 +3,9 @@ package GraphLevel1;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 
-public class GraphPrintAllPath {
+public class P008GraphHamiltonianPath {
     static class Edge {
         int src;
         int nbr;
@@ -17,6 +18,30 @@ public class GraphPrintAllPath {
         }
     }
 
+    public static void getHamiltonianPath(ArrayList<Edge>[] graph, int src, int start, HashSet<Integer> visited, String psf) {
+        if(visited.size() - 1 == graph.length) {
+            boolean cycle = false;
+            for(Edge edge : graph[src]) {
+                if(edge.nbr == start) {
+                    cycle = true;
+                    break;
+                }
+            }
+            if(cycle) {
+                System.out.println(psf+src+"*");
+            } else {
+                System.out.println(psf+src+".");
+            }
+            return;
+        }
+        for(Edge edge : graph[src]) {
+            if(!visited.contains(edge.nbr)) {
+                visited.add(edge.nbr);
+                getHamiltonianPath(graph, edge.nbr, start, visited, psf+src);
+                visited.remove(edge.nbr);
+            }
+        }
+    }
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -37,23 +62,8 @@ public class GraphPrintAllPath {
         }
 
         int src = Integer.parseInt(br.readLine());
-        int dest = Integer.parseInt(br.readLine());
 
-        // write all your codes here
-        printAllPaths(graph, src, dest, new boolean[vtces + 1], "");
-    }
-    public static void printAllPaths(ArrayList<Edge>[] graph, int src, int dest, boolean[] visited, String asf) {
-        if(src == dest) {
-            System.out.println(asf+dest);
-            return;
-        }
-        visited[src] = true;
-        for(Edge edge : graph[src]) {
-            if(!visited[edge.nbr]) {
-                printAllPaths(graph, edge.nbr, dest, visited, asf+src);
-            }
-        }
-        visited[src] = false;
+        getHamiltonianPath(graph, src, src, new HashSet<>(), "");
     }
 
 

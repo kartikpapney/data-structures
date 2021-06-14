@@ -5,7 +5,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class GraphMultiSolver {
+public class P003GraphMultiSolver {
     static class Edge {
         int src;
         int nbr;
