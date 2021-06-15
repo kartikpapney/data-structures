@@ -304,5 +304,119 @@ public class EasyProblems {
         return res;
     }
 
-    /************************  144. Binary Tree Preorder Traversal  ************************************/
+    /************************  653. Two Sum IV - Input is a BST (Important)  ************************************/
+//    public boolean findTarget(TreeNode root, int k) {
+//
+//    }
+
+    /************************  606. Construct String from Binary Tree  ************************************/
+    public String tree2str(TreeNode t) {
+        StringBuilder strb = new StringBuilder();
+        helperTree2Str(t, strb);
+        return strb.toString().substring(1, strb.length() - 1);
+    }
+    public void helperTree2Str(TreeNode root, StringBuilder strb) {
+        if(root == null) {
+            strb.append("()");
+            return;
+        } else if(root.left == null && root.right == null) {
+            strb.append("(").append(root.val).append(")");
+            return;
+        }
+        strb.append("(");
+        strb.append(root.val);
+        helperTree2Str(root.left, strb);
+        if(root.right != null) helperTree2Str(root.right, strb);
+        strb.append(")");
+    }
+
+    /************************  530. Minimum Absolute Difference in BST
+                            * 783. Minimum Distance Between BST Nodes ************************************/
+
+    Integer val = null;
+    int minv = Integer.MAX_VALUE;
+    public int getMinimumDifference(TreeNode root) {
+        helperGetMinimumDifference(root);
+        return minv;
+    }
+    public void helperGetMinimumDifference(TreeNode root) {
+        if(root == null) return;
+        helperGetMinimumDifference(root.left);
+        if(val == null) val = root.val;
+        else minv = Math.min(root.val - val, minv);
+        helperGetMinimumDifference(root.right);
+    }
+
+    /************************  257. Binary Tree Paths  ************************************/
+    // One more way first create an integer arraylist then append it to list of strings.
+
+    public void helperBinaryTreePaths(TreeNode root, List<String> res, String asf) {
+        if(root.left == null && root.right == null) res.add(asf + root.val);
+        if(root.left != null) helperBinaryTreePaths(root.left, res, asf + root.val + "->");
+        if(root.right != null) helperBinaryTreePaths(root.right, res, asf + root.val + "->");
+    }
+    public List<String> binaryTreePaths(TreeNode root) {
+        List<String> res = new ArrayList<>();
+        helperBinaryTreePaths(root, res, "");
+        return res;
+    }
+
+    /************************  100. Same Tree  ************************************/
+
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        return p == null ? q==null :
+                        (q != null
+                        && (p.val == q.val)
+                        && isSameTree(p.left, q.left)
+                        && isSameTree(p.right, q.right));
+    }
+
+    /************************  563. Binary Tree Tilt  ************************************/
+    int sum = 0;
+    public int findTilt(TreeNode root) {
+        helperFindTilt(root);
+        return sum;
+    }
+    public int helperFindTilt(TreeNode root) {
+        if(root == null) return 0;
+        int left = helperFindTilt(root.left);
+        int right = helperFindTilt(root.right);
+        sum+=Math.abs(left - right);
+        return root.val + left + right;
+    }
+    /************************  235. Lowest Common Ancestor of a Binary Search Tree  ************************************/
+
+//  Will not work in case 1 child is present and other is not present + Basic approach.. This approach can work for even Binary Tree
+    /*
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if(root == null) return null;
+        if(root == p || root == q) return root;
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        if(left != null && right != null) return root;
+        return left == null?right:left;
+    }
+    */
+
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        TreeNode curr = root;
+        while(curr != null) {
+            if(curr.val < p.val && curr.val < q.val) curr = curr.right;
+            else if(curr.val > p.val && curr.val > q.val) curr = curr.left;
+            else return curr;
+        }
+        return curr;
+    }
+
+    /************************  235. Lowest Common Ancestor of a Binary Search Tree  ************************************/
+    public int sumOfLeftLeaves(TreeNode root) {
+        return helperSumOfLeftLeaves(root, false);
+    }
+    public int helperSumOfLeftLeaves(TreeNode root, boolean check) {
+        if(root == null) return 0;
+        if(root.left == null && root.right == null) return check?root.val:0;
+        return helperSumOfLeftLeaves(root.left, true) + helperSumOfLeftLeaves(root.right, false);
+    }
+
+
 }
