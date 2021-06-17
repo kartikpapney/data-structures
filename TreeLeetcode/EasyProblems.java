@@ -418,5 +418,30 @@ public class EasyProblems {
         return helperSumOfLeftLeaves(root.left, true) + helperSumOfLeftLeaves(root.right, false);
     }
 
+    /************************  173. Binary Search Tree Iterator  ************************************/
 
+    public class BSTIterator {
+        ArrayDeque<TreeNode> queue;
+        public BSTIterator(TreeNode root) {
+            queue = new ArrayDeque<>();
+            addAllSmaller(root);
+        }
+
+        public void addAllSmaller(TreeNode root) {
+            while(root != null) {
+                queue.addFirst(root);
+                root = root.left;
+            }
+        }
+
+        public int next() {
+            TreeNode node = queue.remove();
+            addAllSmaller(node.right);
+            return node.val;
+        }
+
+        public boolean hasNext() {
+            return queue.size() != 0;
+        }
+    }
 }
