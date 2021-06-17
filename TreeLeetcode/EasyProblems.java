@@ -444,4 +444,134 @@ public class EasyProblems {
             return queue.size() != 0;
         }
     }
+
+    /************************  814. Binary Tree Pruning  ************************************/
+//    Basic approach
+//    public TreeNode pruneTree(TreeNode root) {
+//        boolean ans = helperPruneTree(root);
+//        if(!ans && root.val != 1) return null;
+//        return root;
+//    }
+//    public boolean helperPruneTree(TreeNode root) {
+//        if(root == null) return false;
+//        boolean left = helperPruneTree(root.left);
+//        boolean right = helperPruneTree(root.right);
+//        if(!left) root.left = null;
+//        if(!right) root.right = null;
+//        return root.val == 1 || left || right;
+//    }
+
+    public TreeNode pruneTree(TreeNode root) {
+        if(root == null) return null;
+        root.left = pruneTree(root.left);
+        root.right = pruneTree(root.right);
+        return root.val == 1 || root.left != null || root.right != null?root:null;
+    }
+
+
+    /************************  865. Smallest Subtree with all the Deepest Nodes
+     * 1123. Lowest Common Ancestor of Deepest Leaves ************************************/
+
+//    Brute Force approach
+    public TreeNode lcaDeepestLeaves(TreeNode root) {
+        List<List<TreeNode>> res = new ArrayList<>();
+        find(root, new ArrayList<>(), res, maxDepth(root));
+        int idx = 0;
+        loop:
+        while(idx < res.get(0).size()) {
+            for (List<TreeNode> re : res) {
+                if (re.get(idx).val != res.get(0).get(idx).val) break loop;
+            }
+            idx++;
+        }
+        return res.get(0).get(idx-1);
+    }
+
+    public void find(TreeNode node, List<TreeNode> curr, List<List<TreeNode>> res, int k) {
+        if (node != null) {
+            if(node.left == null && node.right == null) {
+                if(k == 0) {
+                    List<TreeNode> bc = new ArrayList<>(curr);
+                    bc.add(node);
+                    res.add(bc);
+                }
+            } else {
+                curr.add(node);
+                find(node.left, curr, res, k-1);
+                find(node.right, curr, res, k-1);
+                curr.remove(curr.size() - 1);
+            }
+        }
+
+    }
+//  Good Approach
+    class Pair {
+        TreeNode node;
+        int depth;
+        public Pair(TreeNode node, int depth) {
+            this.node = node;
+            this.depth = depth;
+        }
+    }
+    public Pair lcaHelper(TreeNode node, int depth) {
+        if(node == null) return new Pair(null, depth);
+        Pair left = lcaHelper(node.left, depth+1);
+        Pair right = lcaHelper(node.right, depth+1);
+        if(left.depth == right.depth) return new Pair(node, left.depth);
+        return left.depth>right.depth?left:right;
+    }
+    public TreeNode subtreeWithAllDeepest(TreeNode root) {
+        Pair p = lcaHelper(root, 0);
+        return p.node;
+    }
+
+    /************************  1026. Maximum Difference Between Node and Ancestor  ************************************/
+
+    int ans = 0;
+    public int maxAncestorDiff(TreeNode root) {
+        find(root, root.val, root.val);
+        return ans;
+    }
+    public void find(TreeNode root, int min, int max) {
+        if(root == null) return;
+        int mn = Math.min(min, root.val);
+        int mx = Math.max(max, root.val);
+        ans = Math.max(ans, mx - mn);
+        find(root.left, mn, mx);
+        find(root.right, mn, mx);
+    }
+
+    /************************  508. Most Frequent Subtree Sum  ************************************/
+    HashMap<Integer, Integer> map = new HashMap<>();
+    public int[] findFrequentTreeSum(TreeNode root) {
+        find(root);
+        int maxFreq = Integer.MIN_VALUE;
+        int count = 0;
+        for(Map.Entry<Integer, Integer> mp : map.entrySet()) {
+
+            if(mp.getValue() > maxFreq) {
+                maxFreq = mp.getValue();
+                count = 1;
+            } else if(mp.getValue() == maxFreq) {
+                count++;
+            }
+        }
+        int[] ans = new int[count];
+        int idx = 0;
+        for(Map.Entry<Integer, Integer> mp : map.entrySet()) {
+            if(mp.getValue() == maxFreq) {
+                ans[idx++] = mp.getKey();
+            }
+        }
+        return ans;
+    }
+    public int find(TreeNode root) {
+        if(root == null) return 0;
+        int left = find(root.left);
+        int right = find(root.right);
+        int csum = root.val + left + right;
+        map.put(csum, map.getOrDefault(csum, 0) + 1);
+        return csum;
+    }
+
 }
