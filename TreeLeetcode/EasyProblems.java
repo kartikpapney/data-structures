@@ -18,6 +18,14 @@ class TreeNode {
       }
 }
 
+class ListNode {
+    int val;
+    ListNode next;
+    ListNode() {}
+    ListNode(int val) { this.val = val; }
+    ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+}
+
 class Node {
     public int val;
     public List<Node> children;
@@ -573,5 +581,99 @@ public class EasyProblems {
         map.put(csum, map.getOrDefault(csum, 0) + 1);
         return csum;
     }
+    /************************  1448 Count Good Nodes in Binary Tree  ************************************/
+    public int goodNodes(TreeNode root) {
+        return countGoodNodes(root, Integer.MIN_VALUE);
+    }
+    public int countGoodNodes(TreeNode root, int max) {
+        return root==null ? 0:root.val>=max ? 1
+                + countGoodNodes(root.left, root.val)
+                + countGoodNodes(root.right, root.val):countGoodNodes(root.left, max)
+                + countGoodNodes(root.right, max);
+    }
 
+//    public int distributeCoins(TreeNode root) {
+//
+//    }
+
+    List<TreeNode> res;
+    HashSet<Integer> set;
+    public List<TreeNode> delNodes(TreeNode root, int[] to_delete) {
+        res = new ArrayList<>();
+        set = new HashSet();
+        for(int val : to_delete) set.add(val);
+        set.add(0);
+        delete(new TreeNode(0, root, null));
+        return res;
+    }
+    public TreeNode delete(TreeNode root) {
+        if(root == null) return null;
+        root.left = delete(root.left);
+        root.right = delete(root.right);
+        if(set.contains(root.val)) {
+            if(root.left != null) res.add(root.left);
+            if(root.right != null) res.add(root.right);
+            return null;
+        }
+        return root;
+    }
+
+//    public int distributeCoins(TreeNode root) {
+//
+//    }
+
+    /************************  919. Complete Binary Tree Inserter  ************************************/
+    class CBTInserter {
+        // This will store the treenodes
+        List<TreeNode> arr;
+        public CBTInserter(TreeNode root) {
+            arr = new ArrayList<>();
+            arr.add(root);
+            for(int i=0; i<arr.size(); i++) {
+                if(arr.get(i).left != null) arr.add(arr.get(i).left);
+                if(arr.get(i).right != null) arr.add(arr.get(i).right);
+            }
+        }
+        public int insert(int v) {
+            // Finding the parent
+            TreeNode parent = arr.get((arr.size() - 1)/2);
+            TreeNode node = new TreeNode(v);
+            if(parent.left == null) parent.left = node;
+            else parent.right = node;
+            arr.add(node);
+            return parent.val;
+        }
+
+        public TreeNode get_root() {
+            return arr.get(0);
+        }
+    }
+
+
+    public boolean isSubPath(ListNode head, TreeNode root) {
+        if(head == null) return true;
+        if(root == null) return false;
+        boolean res = isSubPath(head, root.left) || isSubPath(head, root.right);
+        if(head.val == root.val) res |= (isSubPath(head.next, root.left) || isSubPath(head.next, root.right));
+        return res;
+    }
+
+
+    String answer = "";
+    public String smallestFromLeaf(TreeNode root) {
+        find(root, new StringBuilder());
+        return answer;
+    }
+
+    public void find(TreeNode root, StringBuilder asf) {
+        if(root == null) {
+            if(answer.equals("")) answer = asf.toString();
+            else if(answer.compareTo(asf.toString()) > 0) answer = asf.toString();
+            return;
+        }
+        asf.insert(0, (char)(root.val + 'a'));
+        find(root.left,  asf);
+        find(root.right, asf);
+        asf.deleteCharAt(0);
+    }
 }
