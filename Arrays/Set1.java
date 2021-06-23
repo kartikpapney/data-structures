@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class LeetcodeSet1 {
+public class Set1 {
     /************************  1476. Subrectangle Queries  ************************************/
 
     class SubrectangleQueries {
@@ -68,6 +68,26 @@ public class LeetcodeSet1 {
             i++;
         }
         return i == a.length && j == b.length;
+    }
+
+    /************************  118. Pascal's Triangle ************************************/
+
+    public List<List<Integer>> generate(int numRows) {
+        List<List<Integer>> res = new ArrayList<>();
+        for(int i=0; i<numRows; i++) res.add(new ArrayList<>());
+        res.get(0).add(1);
+        for(int i=1; i<numRows; i++) {
+            for(int j=0; j<i+1; j++) {
+                if(j == 0) {
+                    res.get(i).add(res.get(i-1).get(j));
+                } else if(j == i) {
+                    res.get(i).add(res.get(i-1).get(j-1));
+                } else {
+                    res.get(i).add(res.get(i-1).get(j-1) + res.get(i-1).get(j));
+                }
+            }
+        }
+        return res;
     }
 
 }

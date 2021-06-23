@@ -357,5 +357,4 @@ public class LeetcodeHard {
         }
         return new int[]{start, mid, end};
     }
-
 }
