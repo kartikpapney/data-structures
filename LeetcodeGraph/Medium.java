@@ -127,4 +127,276 @@ public class Medium {
         }
         return 0;
     }
+
+    /************************  130. Surrounded Regions ************************************/
+    public void convertOToZ(char[][] board, int i, int j) {
+        if(i == board.length || i == -1 || j == board[0].length || j == -1 || board[i][j] != 'O') return;
+        board[i][j] = 'Z';
+        convertOToZ(board, i-1, j);
+        convertOToZ(board, i, j-1);
+        convertOToZ(board, i+1, j);
+        convertOToZ(board, i, j+1);
+    }
+
+    public void solve(char[][] board) {
+        for(int i=0; i<board.length; i++) {
+            convertOToZ(board, i, 0);
+            convertOToZ(board, i, board[0].length-1);
+        }
+        for(int j=0; j<board[0].length; j++) {
+            convertOToZ(board, 0, j);
+            convertOToZ(board, board.length - 1, j);
+        }
+        for(int i=0; i<board.length; i++) {
+            for(int j=0; j<board[0].length; j++) {
+                if(board[i][j] == 'O') board[i][j] = 'X';
+                if(board[i][j] == 'Z') board[i][j] = 'O';
+            }
+        }
+    }
+
+    /************************  860 · Number of Distinct Islands (Lintcode) ************************************/
+    public void find(int[][] grid, int i, int j, StringBuilder strb) {
+        if(i<0 || j < 0 || i >= grid.length || j >= grid[0].length || grid[i][j] == 0) return;
+        grid[i][j] = 0;
+        strb.append('R');
+        find(grid, i, j+1, strb);
+        strb.append('D');
+        find(grid, i+1, j, strb);
+        strb.append('U');
+        find(grid, i-1, j, strb);
+        strb.append('L');
+        find(grid, i, j-1, strb);
+        strb.append('B');
+    }
+    public int numberofDistinctIslands(int[][] grid) {
+        HashSet<String> set = new HashSet<>();
+        for(int i=0; i<grid.length; i++) {
+            for(int j=0; j<grid[0].length; j++) {
+                if(grid[i][j] == 1) {
+                    StringBuilder res = new StringBuilder();
+                    find(grid, i, j, res);
+                    set.add(res.toString());
+                }
+            }
+        }
+        return set.size();
+    }
+    /************************  994. Rotting Oranges ************************************/
+    public int orangesRotting(int[][] arr) {
+        int fresh = 0;
+        int[][] dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        Queue<int[]> q = new ArrayDeque<>();
+        for(int i=0; i<arr.length; i++) {
+            for(int j=0; j<arr[0].length; j++) {
+                if(arr[i][j] == 2) q.add(new int[]{i, j});
+                if(arr[i][j] == 1) fresh++;
+            }
+        }
+        if(q.isEmpty()) {
+            if(fresh == 0) return 0;
+            return -1;
+        }
+        int len = -1;
+        while(!q.isEmpty()) {
+            int size = q.size();
+            while(size-- != 0) {
+                int[] v = q.remove();
+                for(int i=0; i<dir.length; i++) {
+                    int x = v[0]+dir[i][0];
+                    int y = v[1]+dir[i][1];
+                    if(x >= 0 && y >= 0 && x < arr.length && y < arr[0].length && arr[x][y] == 1) {
+                        arr[x][y] = 2;
+                        q.add(new int[]{x, y});
+                    }
+                }
+            }
+            len++;
+        }
+        for(int i=0; i<arr.length; i++) {
+            for(int j=0; j<arr[i].length; j++) {
+                if(arr[i][j] == 1) return -1;
+            }
+        }
+        return len;
+    }
+
+    /************************ 477. Total Hamming Distance ************************************/
+    public int totalHammingDistance(int[] nums) {
+        int res = 0, cnt0=0, cnt1=0;
+        for(int i=0; i<32; i++) {
+            cnt0=0;
+            cnt1=0;
+            int n = (1<<i);
+            for(int j=0; j<nums.length; j++) {
+                if((nums[j]&n) == 0) cnt0++;
+                else cnt1++;
+            }
+            res+=(cnt0*cnt1);
+        }
+        return res;
+    }
+    /************************ 304. Range Sum Query 2D - Immutable ************************************/
+    class NumMatrix {
+        private int[][] grid;
+        public NumMatrix(int[][] matrix) {
+            int m = matrix.length, n = matrix[0].length;
+            this.grid = new int[m+1][n+1];
+            for(int i=1; i<grid.length; i++) {
+                for(int j=1; j<grid[0].length; j++) {
+                    grid[i][j]=matrix[i-1][j-1]+grid[i-1][j]+grid[i][j-1]-grid[i-1][j-1];
+                }
+            }
+        }
+
+        public int sumRegion(int row1, int col1, int row2, int col2) {
+            return grid[row2+1][col2+1]-grid[row2+1][col1]-grid[row1][col2+1]+grid[row1][col1];
+        }
+    }
+    /************************ 207. Course Schedule ************************************/
+    public int countPalindromicSubsequence(String s) {
+        HashSet<String> res = new HashSet<>();
+        for(char c='a'; c<='z'; c++) {
+            int start = -1;
+            int end = -1;
+            for(int i=0; i<s.length(); i++) {
+                if(s.charAt(i) == c) {
+                    start = i;
+                    break;
+                }
+            }
+            for(int i=s.length()-1; i>=0; i--) {
+                if(s.charAt(i) == c) {
+                    end = i;
+                    break;
+                }
+            }
+            for(int i=start+1; i<end-1; i++) {
+                res.add(String.valueOf(c)+s.charAt(i)+c);
+            }
+        }
+        return res.size();
+    }
+
+    /************************ 207. Course Schedule(DFS) ************************************/
+    public boolean canFinish(int numCourses, int[][] pre) {
+        ArrayList[] arr = new ArrayList[numCourses];
+        for(int i=0; i<arr.length; i++) {
+            arr[i] = new ArrayList();
+        }
+        for(int i=0; i<pre.length; i++) {
+            arr[pre[i][0]].add(pre[i][1]);
+        }
+        boolean[] visited = new boolean[numCourses], revisited = new boolean[numCourses];
+        for(int i=0; i<numCourses; i++) {
+            if(!visited[i]) {
+                if(isCyclic(arr, i, visited, revisited)) return false;
+            }
+        }
+        return true;
+    }
+    public boolean isCyclic(ArrayList[] arr, int src, boolean[] visited, boolean[] revisited) {
+        if(revisited[src]) return true;
+        if(visited[src]) return false;
+        visited[src] = true;
+        revisited[src] = true;
+        for(int i=0; i<arr[src].size(); i++) {
+            if(isCyclic(arr, (Integer)arr[src].get(i), visited, revisited)) {
+                return true;
+            }
+        }
+        revisited[src] = false;
+        return false;
+    }
+    /************************ 785. Is Graph Bipartite? ************************************/
+    public boolean isBipartite(int[][] graph) {
+        int n = graph.length;
+        int[] visited = new int[n];
+        Arrays.fill(visited, -1);
+        for(int i=0; i<n; i++) {
+            if(visited[i] == -1) {
+                if(!isBiartite(graph, i, visited)) return false;
+            }
+        }
+        return true;
+    }
+    public boolean isBiartite(int[][] graph, int src, int[] visited) {
+        Queue<Integer> q = new ArrayDeque<>();
+        q.add(src);
+        int color = 0;
+        while (!q.isEmpty()) {
+            int size = q.size();
+            while(size-- != 0) {
+                int rem = q.remove();
+                if(visited[rem] != -1) {
+                    continue;
+                }
+                visited[rem] = color;
+                for(int i=0; i<graph[rem].length; i++) {
+                    int nbr = (int)graph[rem][i];
+                    if(visited[nbr] == -1) {
+                        q.add(nbr);
+                    } else {
+                        if(visited[nbr] == color) return false;
+                    }
+                }
+            }
+            color = color == 0?1:0;
+        }
+        return true;
+    }
+
+    private boolean isCycleThere(ArrayList[] graph, int src, boolean[] visited, boolean[] revisited) {
+        if(revisited[src]) return true;
+        if(visited[src]) return false;
+        visited[src] = true;
+        revisited[src] = true;
+        for(int i=0; i<graph[src].size(); i++) {
+            if(isCycleThere(graph, (int)graph[src].get(i), visited, revisited)) {
+                return true;
+            }
+        }
+        revisited[src] = false;
+        return false;
+    }
+
+    /************************ 210. Course Schedule II ************************************/
+    private void topologicalSort(ArrayList[] graph, int src, boolean[] visited, Stack<Integer> st) {
+        visited[src] = true;
+        for(int i=0; i<graph[src].size(); i++) {
+            int nbr = (int)graph[src].get(i);
+            if(!visited[nbr]) topologicalSort(graph, nbr, visited, st);
+        }
+        st.add(src);
+    }
+    public int[] findOrder(int numCourses, int[][] pre) {
+        ArrayList[] graph = new ArrayList[numCourses];
+        for(int i=0; i<graph.length; i++) graph[i] = new ArrayList();
+        for(int i=0; i<pre.length; i++) {
+            graph[pre[i][0]].add(pre[i][1]);
+        }
+        boolean[] visited = new boolean[numCourses], revisited = new boolean[numCourses];
+        for(int i=0; i<numCourses; i++) {
+            if(!visited[i]) {
+                if(isCycleThere(graph, i, visited, revisited)) {
+                    return new int[0];
+                }
+            }
+        }
+        Stack<Integer> st = new Stack<>();
+        visited = new boolean[numCourses];
+        for(int i=0; i<numCourses; i++) {
+            if(!visited[i]){
+                topologicalSort(graph, i, visited, st);
+            }
+        }
+        int[] res = new int[st.size()];
+        int idx = st.size()-1;
+        while(idx >= 0) {
+            res[idx--] = st.pop();
+        }
+        return res;
+    }
+
+
 }

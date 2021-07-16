@@ -1,10 +1,6 @@
 package AdvanceDynamicProgramming;
 
 import java.util.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
 
 public class LeetcodeHard {
 
@@ -356,5 +352,716 @@ public class LeetcodeHard {
             }
         }
         return new int[]{start, mid, end};
+    }
+
+    /************************  689. Maximum Sum of 3 Non-Overlapping Subarrays  ************************************/
+    Integer[][][] dp = new Integer[51][51][51];
+    int mod = (int)1e9+7;
+    public int findPaths(int m, int n, int maxMove, int startRow, int startColumn) {
+        if(startRow==m || startColumn==n || startRow==-1 || startColumn ==-1) return 1;
+        if(maxMove==0) return 0;
+        if(dp[startRow][startColumn][maxMove] != null) return dp[startRow][startColumn][maxMove];
+        int a = findPaths(m, n, maxMove-1, startRow+1, startColumn);
+        int b = findPaths(m, n, maxMove-1, startRow-1, startColumn);
+        int c = findPaths(m, n, maxMove-1, startRow, startColumn+1);
+        int d = findPaths(m, n, maxMove-1, startRow, startColumn-1);
+
+        dp[startRow][startColumn][maxMove] = ((a+b)%mod+(c+d)%mod)%mod;
+        return dp[startRow][startColumn][maxMove];
+    }
+
+    public int findLongestDecomposition(String text, int start, int len) {
+        int s1 = start, s2 = text.length() - start - len, e1 = start+len, e2 = text.length() - start;
+        if(s2 > e1) {
+            return len == 1?0:Integer.MIN_VALUE;
+        }
+        int a=0, b=0;
+        if(text.substring(s1, e1).equals(text.substring(s2, e2))) a = 2 + findLongestDecomposition(text, start+1, 1);
+        b = findLongestDecomposition(text, start, len+1);
+        return Math.max(a, b);
+    }
+    public int longestDecomposition(String text) {
+        return findLongestDecomposition(text, 0, 1);
+    }
+
+    /************************  1048. Longest String Chain  ************************************/
+
+//    Accepted 168ms
+    /*
+
+    public boolean checkIfPredecessor(String a, String b) {
+        if(a.length() != b.length() + 1) return false;
+        boolean check = true;
+        int i=0, j=0;
+        while(j < b.length()) {
+            if(a.charAt(i) == b.charAt(j)) {
+                i++;
+                j++;
+            } else {
+                if(check) {
+                    i++;
+                    check = false;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    public int findLongestStrChain(String[] words, int i, int lastIdx, Integer[][] dp) {
+        if(i == words.length) return 0;
+        if(dp[i+1][lastIdx+1] != null) return dp[i+1][lastIdx+1];
+        int a = 0, b = 0;
+        if(lastIdx == -1 || checkIfPredecessor(words[i], words[lastIdx])) a = 1 + findLongestStrChain(words, i+1, i, dp);
+        b = findLongestStrChain(words, i+1, lastIdx, dp);
+        return dp[i+1][lastIdx+1] = Math.max(a, b);
+    }
+    public int longestStrChain(String[] words) {
+        Arrays.sort(words, (a, b)->a.length()-b.length());
+        Integer[][] dp = new Integer[words.length + 1][words.length + 1];
+        return findLongestStrChain(words, 0, -1, dp);
+    }
+
+    */
+
+    // Using HashMap + StringBuilder 29 ms
+
+    public int longestStrChain(String[] words) {
+        Arrays.sort(words, (a, b)->(a.length() - b.length()));
+        Map<String, Integer> dp = new LinkedHashMap<>();
+        int ans = 0;
+        for(var word : words) {
+            int best = 1;
+            StringBuilder strb = new StringBuilder(word);
+            for(int i=0; i<word.length(); i++) {
+                strb.deleteCharAt(i);
+                best = Math.max(best, dp.getOrDefault(strb.toString(), 0) + 1);
+                strb.insert(i, word.charAt(i));
+            }
+            dp.put(word, best);
+            ans = Math.max(ans, best);
+        }
+        return ans;
+    }
+
+    /************************  1749. Maximum Absolute Sum of Any Subarray  ************************************/
+    /*
+    public int positiveKadanes(int[] nums) {
+        int omax = Integer.MIN_VALUE;
+        int curr = 0;
+        for(int i=0; i<nums.length; i++) {
+            curr+=nums[i];
+            if(curr<nums[i]) curr = nums[i];
+
+            omax = Math.max(omax, curr);
+        }
+        return omax;
+    }
+    public int negativeKadanes(int[] nums) {
+        int omax = Integer.MAX_VALUE;
+        int curr = 0;
+        for(int i=0; i<nums.length; i++) {
+            curr+=nums[i];
+            if(curr>nums[i]) curr = nums[i];
+
+            omax = Math.min(omax, curr);
+        }
+        return omax;
+    }
+
+    public int maxAbsoluteSum(int[] nums) {
+        int a = positiveKadanes(nums);
+        int b = negativeKadanes(nums);
+        return Math.max(a, Math.abs(b));
+    }
+    */
+
+//    Important solution
+    public int maxAbsoluteSum(int[] nums) {
+        int sum = 0;
+        int max=0, min=0;
+        for(int v : nums) {
+            sum+=v;
+            max = Math.max(max, sum);
+            min = Math.min(min, sum);
+        }
+        return max-min;
+    }
+
+    /************************  1749. Maximum Absolute Sum of Any Subarray  ************************************/
+
+    public int minimumDeletions(String s) {
+        int[] b = new int[s.length()];
+        int[] a = new int[s.length()];
+        int c = s.charAt(0) == 'b'?1:0;
+        for(int i=1; i<b.length; i++) {
+            b[i] = c;
+            if(s.charAt(i) == 'b') c++;
+        }
+        c = s.charAt(s.length() - 1) == 'a'?1:0;
+        for(int i=s.length()-2; i>=0; i--) {
+            a[i] = c;
+            if(s.charAt(i) == 'a') c++;
+        }
+        int ans = Integer.MAX_VALUE;
+        for(int i=0; i<a.length; i++) {
+            ans = Math.min(ans, a[i] + b[i]);
+        }
+        return ans;
+    }
+
+    /************************  1162. As Far from Land as Possible  ************************************/
+    /*
+    public int maxDistance(int[][] grid) {
+        int[][] dp = new int[grid.length][grid[0].length];
+        for(int i=0; i<dp.length; i++) {
+            for(int j=0; j<dp[i].length; j++) {
+                if(grid[i][j] == 1) {
+                    dp[i][j] = 0;
+                } else {
+                    dp[i][j] = Integer.MAX_VALUE - 1;
+                }
+            }
+        }
+
+        for(int i=0; i<grid.length; i++) {
+            for(int j=0; j<grid[i].length; j++) {
+                if(grid[i][j] == 0) {
+                    if(i == 0 && j == 0) {}
+                    else if(i == 0) {
+                        dp[i][j] = Math.min(dp[i][j-1] + 1, dp[i][j]);
+                    } else if(j == 0) {
+                        dp[i][j] = Math.min(dp[i-1][j] + 1, dp[i][j]);
+                    } else {
+                        dp[i][j] = Math.min(Math.min(1+dp[i-1][j], 1+dp[i][j-1]), dp[i][j]);
+                    }
+                }
+                if(dp[i][j] == Integer.MAX_VALUE) dp[i][j]--;
+            }
+        }
+
+        for(int i=0; i<grid.length; i++) {
+            for(int j=grid[i].length-1; j>=0; j--) {
+                if(grid[i][j] == 0) {
+                    if(i == 0 && j == grid[i].length-1) {}
+                    else if(i == 0) {
+                        dp[i][j] = Math.min(dp[i][j+1] + 1, dp[i][j]);
+                    } else if(j == grid[i].length-1) {
+                        dp[i][j] = Math.min(dp[i-1][j] + 1, dp[i][j]);
+                    } else {
+                        dp[i][j] = Math.min(dp[i][j], Math.min(1+dp[i-1][j], 1+dp[i][j+1]));
+                    }
+                }
+                if(dp[i][j] == Integer.MAX_VALUE) dp[i][j]--;
+            }
+        }
+
+        for(int i=grid.length-1; i>=0; i--) {
+            for(int j=grid[i].length-1; j>=0; j--) {
+                if(grid[i][j] == 0) {
+                    if(i == grid.length - 1 && j == grid[i].length-1) {}
+                    else if(i == grid.length-1) {
+                        dp[i][j] = Math.min(dp[i][j+1] + 1, dp[i][j]);
+                    } else if(j == grid[i].length-1) {
+                        dp[i][j] = Math.min(dp[i+1][j] + 1, dp[i][j]);
+                    } else {
+                        dp[i][j] = Math.min(dp[i][j], Math.min(1+dp[i+1][j], 1+dp[i][j+1]));
+                    }
+                }
+                if(dp[i][j] == Integer.MAX_VALUE) dp[i][j]--;
+            }
+        }
+
+        for(int i=grid.length-1; i>=0; i--) {
+            for(int j=0; j<grid[i].length; j++) {
+                if(grid[i][j] == 0) {
+                    if(i == grid.length - 1 && j == 0) {}
+                    else if(i == grid.length-1) {
+                        dp[i][j] = Math.min(dp[i][j-1] + 1, dp[i][j]);
+                    } else if(j == 0) {
+                        dp[i][j] = Math.min(dp[i+1][j] + 1, dp[i][j]);
+                    } else {
+                        dp[i][j] = Math.min(dp[i][j], Math.min(1+dp[i+1][j], 1+dp[i][j-1]));
+                    }
+                }
+                if(dp[i][j] == Integer.MAX_VALUE) dp[i][j]--;
+            }
+        }
+        int res = -1;
+        for(int i=0; i<grid.length; i++) {
+            for(int j=0; j<grid[i].length; j++) {
+                if(grid[i][j] == 0) res = Math.max(res, dp[i][j]);
+            }
+        }
+        return res==Integer.MAX_VALUE-1?-1:res;
+    }
+    */
+
+    /************************  1162. As Far from Land as Possible  (Using Queue, Less code length) ************************************/
+    public int maxDistance(int[][] grid) {
+        int[][] dirs = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        Queue<int[]> q = new ArrayDeque<>();
+        for(int i=0; i<grid.length; i++) {
+            for(int j=0; j<grid[i].length; j++) {
+                if(grid[i][j] == 1) q.add(new int[]{i, j});
+            }
+        }
+        if(q.size() == 0 || q.size() == grid.length*grid[0].length) return -1;
+        int max = 0;
+        while (!q.isEmpty()) {
+            int size = q.size();
+            for(int i=0; i<size; i++) {
+                int[] pos = q.remove();
+                for(int[] dir : dirs) {
+                    int x = pos[0]+dir[0];
+                    int y = pos[1]+dir[1];
+                    if(x>=0 && y>=0 && x<grid.length && y<grid[0].length && grid[x][y] == 0) {
+                        grid[x][y] = 1;
+                        q.add(new int[]{x, y});
+                    }
+                }
+            }
+            max++;
+        }
+        return max-1;
+    }
+
+    public int minSwap(int[] nums1, int[] nums2) {
+        int[] dp = new int[nums1.length];
+        for(int i=1; i<dp.length; i++) {
+            if(nums1[i] > nums1[i-1] && nums2[i] > nums2[i-1]) dp[i] = dp[i-1];
+            else {
+                int temp = nums1[i];
+                nums1[i] = nums2[i];
+                nums2[i] = temp;
+                dp[i] = dp[i-1] + 1;
+            }
+        }
+        return dp[dp.length - 1];
+    }
+    public int findMinimumDistance(char[] word, int idx, int x, int y, int p, int q) {
+        if(idx == word.length) return 0;
+        int a = Integer.MAX_VALUE, b = Integer.MAX_VALUE;
+        int posx = (word[idx] - 'A')/7;
+        int posy = (word[idx] - 'A')%7;
+        a = Math.abs(posx - x) + Math.abs(posy - y) + findMinimumDistance(word, idx+1, posx, posy, p, q);
+        if(p != Integer.MAX_VALUE) b = Math.abs(posx - p) + Math.abs(posy - q) + findMinimumDistance(word, idx+1, x, y, posx, posy);
+        else b = findMinimumDistance(word, idx+1, x, y, posx, posy);
+        return Math.min(a, b);
+    }
+    public int minimumDistance(String w) {
+        char[] word = w.toCharArray();
+        int x = (word[0] - 'A')/7;
+        int y = (word[0] - 'A')%7;
+        return findMinimumDistance(word, 1, x, y, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
+    public List<Integer> find(StringBuilder expression, int start, int end, List<Integer>[][] dp) {
+        if(start == end) return new ArrayList<>();
+        List<Integer> res = new ArrayList<>();
+        if(dp[start][end] != null) return dp[start][end];
+        for(int i=start; i<end; i++) {
+            char c = expression.charAt(i);
+            if(c=='+' || c == '-' || c == '*') {
+                List<Integer> a = find(expression, 0, i, dp);
+                List<Integer> b = find(expression, i+1, end, dp);
+                for(int v1 : a) {
+                    for(int v2 : b) {
+                        switch (c) {
+                            case '+':
+                                res.add(v1+v2);
+                                break;
+                            case '-':
+                                res.add(v1-v2);
+                                break;
+                            default:
+                                res.add(v1*v2);
+                        }
+                    }
+                }
+            }
+        }
+        if(res.isEmpty()){
+            res.add(Integer.parseInt(expression.toString()));
+        }
+        dp[start][end] = res;
+        return res;
+    }
+    public List<Integer> diffWaysToCompute(String expression) {
+        List<Integer>[][] dp = new List[expression.length()][expression.length()];
+        return find(new StringBuilder(expression), 0, expression.length(), dp);
+    }
+
+    /************************  1578. Minimum Deletion Cost to Avoid Repeating Letters ************************************/
+
+    public int findCost(char[] s, int[] cost, int idx, char c, Integer[][] dp) {
+        if(idx == s.length) return 0;
+        if(dp[idx][c-'a'] != null) return dp[idx][c-'a'];
+        int a = 0, b=Integer.MAX_VALUE;
+        a = cost[idx] + findCost(s, cost, idx+1, c, dp);
+        if(s[idx] != c) b = findCost(s, cost, idx+1, s[idx], dp);
+        return dp[idx][c-'a'] = Math.min(a, b);
+    }
+    public int minCost(String s, int[] cost) {
+        Integer[][] dp = new Integer[s.length()][27];
+        return findCost(s.toCharArray(), cost, 0, (char)123, dp);
+    }
+
+//    Greedy Solution O(N)
+
+//    public int minCost(String str, int[] cost) {
+//        char[] s = str.toCharArray();
+//        int maxCost = 0, ans = 0;
+//        for(int i=0; i<s.length; i++) {
+//            if(i>0 && s[i] != s[i-1]) maxCost = 0;
+//            ans+=Math.min(cost[i], maxCost);
+//            maxCost = Math.max(maxCost, cost[i]);
+//        }
+//        return ans;
+//    }
+
+    public int countToMakePalindrome(StringBuilder s, int start, int end) {
+        int cnt = 0;
+        while(start < end) {
+            if(s.charAt(start) != s.charAt(end)) cnt++;
+            start++;
+            end--;
+        }
+        return cnt;
+    }
+
+
+    public int findPalindromePartition(StringBuilder s, int start, int k, Integer[][] dp) {
+        if(dp[start][k] != null) return dp[start][k];
+        if(k == 1) {
+            return dp[start][k] = countToMakePalindrome(s, start, s.length()-1);
+        }
+        int minv = Integer.MAX_VALUE;
+        for(int i=start; i<=s.length()-k; i++) {
+            int a = findPalindromePartition(s, i+1, k-1, dp) + countToMakePalindrome(s, start, i);
+            minv=Math.min(a, minv);
+        }
+        return dp[start][k] = minv;
+    }
+
+    public int palindromePartition(String s, int k) {
+        Integer[][] dp = new Integer[s.length()+1][k+1];
+        int v = findPalindromePartition(new StringBuilder(s), 0, k, dp);
+        return v;
+    }
+
+    /************************  198. House Robber ************************************/
+    public int robi(int[] nums, int start, int end) {
+//         arr[0] = inc current element
+//         arr[1] = don't inc current element
+        int[] arr = new int[2];
+        for(int i=start; i<end; i++) {
+            int includeCurrentElement = arr[1] + nums[i];
+            int dontIncludeCurrentElement = Math.max(arr[0], arr[1]);
+            arr[0] = includeCurrentElement;
+            arr[1] = dontIncludeCurrentElement;
+        }
+        return Math.max(arr[0], arr[1]);
+    }
+
+    /************************  213. House Robber II ************************************/
+    public int robii(int[] nums) {
+        if(nums.length == 1) return nums[0];
+        return Math.max(robi(nums, 0, nums.length - 1), robi(nums, 1, nums.length));
+    }
+
+    /************************  376. Wiggle Subsequence ************************************/
+    public int wiggleMaxLength(int[] nums) {
+        int[] up = new int[nums.length], down = new int[nums.length];
+        up[0] = down[0] = 1;
+        for(int i=1; i<nums.length; i++) {
+            if(nums[i] > nums[i-1]) {
+                up[i] = down[i-1] + 1;
+                down[i] = down[i-1];
+            } else if(nums[i] < nums[i-1]) {
+                down[i] = up[i-1] + 1;
+                up[i] = up[i-1];
+            } else {
+                up[i] = up[i-1];
+                down[i] = down[i-1];
+            }
+        }
+        return Math.max(up[up.length - 1], down[down.length - 1]);
+    }
+    /************************ 396. Rotate Function ************************************/
+    public int maxRotateFunction(int[] nums) {
+        int n = nums.length;
+        int sum = 0, prev = 0;
+        for(int i=0; i<nums.length; i++) {
+            sum+=nums[i];
+            prev+=i*nums[i];
+        }
+        int max = prev;
+        for(int i=1; i<nums.length; i++) {
+            prev+=sum;
+            prev-=nums[n-i]*n;
+            max = Math.max(prev, max);
+        }
+
+        return max;
+    }
+    /************************ Integer Replacement ************************************/
+    HashMap<Integer, Integer> map = new HashMap<>();
+    public int find(int n) {
+        if(n == 1) return 0;
+        if(map.containsKey(n)) return map.get(n);
+        if(n%2 == 0) {
+            int v = 1 + find(n/2);
+            map.put(n, v);
+            return v;
+        }
+        int v = 2 + Math.min(find(n/2+1), find(n/2));
+        map.put(n, v);
+        return v;
+    }
+    public int integerReplacement(int n) {
+        return find(n);
+    }
+
+    /************************ 93. Restore IP Addresses ************************************/
+    List<String> res;
+    public void restoreIp(String s, int idx, int state, StringBuilder cans) {
+        if(idx == s.length()) {
+            if(state == 5) {
+                res.add(cans.substring(1));
+            }
+            return;
+        }
+        if(state == 5) return;
+        for(int i=1; i+idx <= s.length() && i <= 3; i++) {
+            String currStr = s.substring(idx, idx+i);
+            if(currStr.length() >= 2 && currStr.charAt(0) == '0') return;
+            int value = Integer.parseInt(currStr);
+            if(value >= 0 && value <= 255) {
+                cans.append('.').append(currStr);
+                restoreIp(s, i+idx, state+1, cans);
+                cans.delete(cans.length() - currStr.length(), cans.length());
+            }
+        }
+    }
+    public List<String> restoreIpAddresses(String s) {
+        res = new ArrayList<>();
+        if(s.length() > 12) return res;
+        restoreIp(s, 0, 1, new StringBuilder());
+        return res;
+    }
+
+    /************************ 491. Increasing Subsequences  (Important) ************************************/
+    List<List<Integer>> result;
+    public void findSubsequences(int[] nums, int idx, List<Integer> clist) {
+        if(nums.length == idx) {
+            if(clist.size() > 1) result.add(new ArrayList<>(clist));
+            return;
+        }
+        if(clist.size() == 0 || nums[idx] >= clist.get(clist.size() - 1)) {
+            clist.add(nums[idx]);
+            findSubsequences(nums, idx+1, clist);
+            clist.remove(clist.size() - 1);
+        }
+        if(clist.size()>0 && nums[idx] == clist.get(clist.size() - 1)) return;
+        findSubsequences(nums, idx+1, clist);
+    }
+    public List<List<Integer>> findSubsequences(int[] nums) {
+        result = new ArrayList<>();
+        List<Integer> clist = new ArrayList<>();
+        findSubsequences(nums, 0, clist);
+        return result;
+    }
+    /************************ 842. Split Array into Fibonacci Sequence ************************************/
+    public boolean findSplit(String str, int idx, List<Integer> resInt) {
+        if(idx == str.length()) return true;
+        int n = resInt.size();
+        boolean check = false;
+        for(int i=idx+1; i<=str.length(); i++) {
+            String curr = str.substring(idx, i);
+            if(curr.length() == 2 && curr.charAt(0) == 0) return false;
+            if(Long.parseLong(curr) > Integer.MAX_VALUE) break;
+            int c = Integer.parseInt(curr);
+            if(resInt.get(n-1) + resInt.get(n-2) == c) {
+                resInt.add(c);
+                check = findSplit(str, i, resInt);
+                if(check) return true;
+            }
+        }
+        return check;
+    }
+    public List<Integer> splitIntoFibonacci(String num) {
+        for(int j=1; j<num.length()-1; j++) {
+            String first = num.substring(0, j);
+            if(first.length() > 1 && first.charAt(0) == '0') break;
+            if(Long.parseLong(first) > Integer.MAX_VALUE) break;
+            for(int k=j+1; k<num.length(); k++) {
+                String second = num.substring(j, k);
+                if(second.length() > 1 && second.charAt(0) == '0') break;
+                if(Long.parseLong(second) > Integer.MAX_VALUE) break;
+                List<Integer> resInt = new ArrayList<>();
+                int a = Integer.parseInt(first);
+                int b = Integer.parseInt(second);
+                resInt.add(a);
+                resInt.add(b);
+                if(findSplit(num, k, resInt)) return resInt;
+            }
+        }
+        return new ArrayList<>();
+    }
+    /************************ 300. Longest Increasing Subsequence ************************************/
+//    public int lengthOfLIS(int[] nums) {
+//        int[] dp = new int[nums.length];
+//        dp[0] = 1;
+//        int omax = 1;
+//        for(int i=1; i<dp.length; i++) {
+//            dp[i] = 1;
+//            for(int j=i-1; j>=0; j--) {
+//                if(nums[i] > nums[j]) dp[i] = Math.max(dp[i], dp[j]+1);
+//            }
+//            omax = Math.max(omax, dp[i]);
+//        }
+//        return omax;
+//    }
+
+//    O(NlogN)
+
+    public int bsLIS(List<Integer> nums, int val) {
+        int start = 0;
+        int end = nums.size() - 1;
+        int ceil = nums.size();
+        while(start <= end) {
+            int mid = start + (end-start)/2;
+            if(nums.get(mid) == val) {
+                ceil = mid;
+                break;
+            } else if(nums.get(mid) < val) {
+                start = mid+1;
+            } else {
+                ceil = mid;
+                end = mid-1;
+            }
+        }
+        return ceil;
+    }
+    public int lengthOfLIS(int[] nums) {
+        List<Integer> list = new ArrayList<>();
+        list.add(nums[0]);
+        for(int i=1; i<nums.length; i++) {
+            int idx = bsLIS(list, nums[i]);
+            if(idx == list.size()) list.add(nums[i]);
+            else list.set(idx, nums[i]);
+        }
+        return list.size();
+    }
+    /************************ 1201. Ugly Number III ************************************/
+    public int nthUglyNumber(int n, int a, int b, int c) {
+        PriorityQueue<int[]> pq = new PriorityQueue<>((i, j) -> i[0]*i[1] - j[0]*j[1]);
+        pq.add(new int[]{a, 1});
+        pq.add(new int[]{b, 1});
+        pq.add(new int[]{b, 1});
+        while(n-- != 1) {
+            int[] curr = pq.poll();
+            int value = curr[0]*curr[1];
+            pq.add(new int[]{curr[0], curr[1]+1});
+            while(true) {
+                int[] peek = pq.peek();
+                if(peek[0]*peek[1] == value) {
+                    pq.add(new int[]{peek[0], peek[1]+1});
+                    pq.poll();
+                } else {
+                    break;
+                }
+            }
+        }
+        int[] ans = pq.poll();
+        return ans[0]*ans[1];
+    }
+    /************************ 845. Longest Mountain in Array ************************************/
+    public int longestMountain(int[] arr) {
+        int max = 0, up = 0, down = 0;
+        for(int i=1; i<arr.length; i++) {
+            if(down > 0 && arr[i-1] < arr[i] || arr[i-1] == arr[i]) up = down = 0;
+            if(arr[i] > arr[i-1]) up++;
+            if(arr[i] < arr[i-1]) down++;
+            if(up > 0 && down > 0) max = Math.max(up + down + 1, max);
+        }
+        return max;
+    }
+
+    /************************ 1671. Minimum Number of Removals to Make Mountain Array ************************************/
+    public int binarySearch(List<Integer> nums, int val) {
+        int start = 0;
+        int end = nums.size() - 1;
+        int mid = 0;
+        while(start <= end) {
+            mid  = start + (end-start)/2;
+            if(nums.get(mid) == val) {
+                return mid;
+            } else if(nums.get(mid) > val) {
+                end = mid-1;
+            } else {
+                start = mid+1;
+            }
+        }
+        return start;
+    }
+    public int minimumMountainRemovals(int[] nums) {
+        int[] left = new int[nums.length];
+        int[] right = new int[nums.length];
+        List<Integer> arr = new ArrayList<>();
+        arr.add(nums[0]);
+        for(int i=1; i<nums.length; i++) {
+            int pos = binarySearch(arr, nums[i]);
+            if(pos == arr.size()) {
+                arr.add(nums[i]);
+            } else {
+                arr.set(pos, nums[i]);
+            }
+            left[i] = pos;
+        }
+        arr = new ArrayList<>();
+        arr.add(nums[nums.length-1]);
+        for(int i=nums.length-2; i>=0; i--) {
+            int pos = binarySearch(arr, nums[i]);
+            if(pos == arr.size()) {
+                arr.add(nums[i]);
+            } else {
+                arr.set(pos, nums[i]);
+            }
+            right[i] = pos;
+        }
+        int len = 0;
+        for(int i=1; i<nums.length-1; i++) {
+            if(left[i] != 0 && right[i] != 0) {
+                len = Math.max(len, left[i] + right[i] + 1);
+            }
+        }
+        return nums.length-len;
+    }
+
+    public boolean canFinish(int numCourses, int[][] pre) {
+        boolean[] visited = new boolean[numCourses];
+        ArrayList[] arr = new ArrayList[numCourses];
+        for(int i=0; i<arr.length; i++) {
+            arr[i] = new ArrayList();
+        }
+        for(int i=0; i<pre.length; i++) {
+            arr[pre[i][0]].add(pre[i][1]);
+        }
+        Queue<Integer> q = new ArrayDeque<>();
+        q.add(pre[0][0]);
+        while(!q.isEmpty()) {
+            int rem = q.remove();
+            if(visited[rem]) return false;
+            visited[rem] = true;
+            for(int i=0; i<arr[rem].size(); i++) {
+                Integer nbr = (Integer) arr[rem].get(i);
+                if(!visited[nbr]) {
+                    q.add(nbr);
+                }
+            }
+        }
+        return true;
     }
 }
