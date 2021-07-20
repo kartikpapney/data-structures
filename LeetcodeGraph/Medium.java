@@ -399,4 +399,28 @@ public class Medium {
     }
 
 
+    public int dfs(List<List<Integer>> graph, boolean[] visited, int src) {
+        int count = 0;
+        visited[src] = true;
+        for(int i=0; i<graph.get(src).size(); i++) {
+            int to = graph.get(src).get(i);
+            if(!visited[Math.abs(to)]) {
+                count += dfs(graph, visited, Math.abs(to)) + (to>0?1:0);
+            }
+        }
+        return count;
+    }
+    public int minReorder(int n, int[][] arr) {
+        List<List<Integer>> graph = new ArrayList<>();
+        boolean[] visited = new boolean[n];
+        for(int i=0; i<n; i++) {
+            graph.add(new ArrayList<>());
+        }
+        for(int i=0; i<arr.length; i++) {
+            graph.get(arr[i][0]).add(arr[i][1]);
+            graph.get(arr[i][1]).add(-arr[i][0]);
+        }
+        return dfs(graph, visited, 0);
+    }
+
 }
