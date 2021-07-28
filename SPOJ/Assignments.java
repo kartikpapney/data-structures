@@ -1,67 +1,36 @@
+package SPOJ;
+
 import java.util.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.*;
 
-public class Main {
-
-    static class Edge {
-        int src, des;
-        public Edge(int src, int des) {
-            this.src = src;
-            this.des = des;
+public class Assignments {
+    static Long[][] dp;
+    public static long find(int[][] arr, int i, int mask) {
+        if(i == arr.length) return 1;
+        if(dp[i][mask] != null) return dp[i][mask];
+        long ans = 0;
+        for(int j=0; j<arr[i].length; j++) {
+            if(((mask&(1<<j)) == 0) && arr[i][j] == 1) {
+                mask^=(1<<j);
+                ans+=find(arr, i+1, mask);
+                mask^=(1<<j);
+            }
         }
-    }
-    public static void dfs(ArrayList<Integer>[] graph, int src, boolean[] visited) {
-        if(visited[src]) return;
-        visited[src] = true;
-        for(Integer nbr : graph[src]) {
-            dfs(graph, nbr, visited);
-        }
+        return dp[i][mask] = ans;
     }
     public static void A() {
         int n = sc.nextInt();
-        int m = sc.nextInt();
-        ArrayList<Integer>[] graph = new ArrayList[n+1];
-        int[] visited = new int[n+1];
-        for(int i=0; i<graph.length; i++) graph[i] = new ArrayList();
-        for(int i=0; i<m; i++) {
-            int src = sc.nextInt();
-            int des = sc.nextInt();
-            graph[src].add(des);
-            graph[des].add(src);
-        }
-        int cnt = 1;
-        for(int i=1; cnt != visited.length && i<visited.length; i++) {
-            if(visited[i] != 0) continue;
-            Queue<Integer> q = new ArrayDeque<>();
-            q.add(i);
-            visited[i] = 1;
-            int color = 1;
-            while (cnt != visited.length && !q.isEmpty()) {
-                int size = q.size();
-                color = color==1?2:1;
-                while (cnt != visited.length && size-- != 0) {
-                    int rem = q.remove();
-                    for(int nbr : graph[rem]) {
-                        if(visited[nbr] == 0) {
-                            visited[nbr] = color;
-                            q.add(nbr);
-                            cnt++;
-                        } else {
-                            if(visited[nbr] != color) {
-                                p.write("IMPOSSIBLE");
-                                return;
-                            }
-                        }
-                    }
-                }
+        dp = new Long[n][1<<20];
+        int[][] arr = new int[n][n];
+        for(int i=0; i<n; i++) {
+            for(int j=0; j<n; j++) {
+                arr[i][j] = sc.nextInt();
             }
         }
-
-        for(int i=1; i<visited.length; i++) {
-            p.write(visited[i] + " ");
-        }
+        System.out.println(find(arr, 0, 0));
     }
 
     public static void B() {
@@ -80,7 +49,7 @@ public class Main {
 
     public static void main(String[] args) {
         int t = 1;
-//        t = sc.nextInt();
+        t = sc.nextInt();
         while (t-- != 0) {
             solve();
         }

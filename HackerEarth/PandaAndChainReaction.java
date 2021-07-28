@@ -1,66 +1,28 @@
+package HackerEarth;
+
 import java.util.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class Main {
-
-    static class Edge {
-        int src, des;
-        public Edge(int src, int des) {
-            this.src = src;
-            this.des = des;
-        }
-    }
-    public static void dfs(ArrayList<Integer>[] graph, int src, boolean[] visited) {
-        if(visited[src]) return;
-        visited[src] = true;
-        for(Integer nbr : graph[src]) {
-            dfs(graph, nbr, visited);
-        }
-    }
+class PandaAndChainReaction {
     public static void A() {
-        int n = sc.nextInt();
-        int m = sc.nextInt();
-        ArrayList<Integer>[] graph = new ArrayList[n+1];
-        int[] visited = new int[n+1];
-        for(int i=0; i<graph.length; i++) graph[i] = new ArrayList();
-        for(int i=0; i<m; i++) {
-            int src = sc.nextInt();
-            int des = sc.nextInt();
-            graph[src].add(des);
-            graph[des].add(src);
+        int mod = 1000003;
+        long[] fact = new long[mod];
+        fact[0] = 1;
+        for(int i=1; i<fact.length; i++) {
+            fact[i] = (i*fact[i-1])%mod;
         }
-        int cnt = 1;
-        for(int i=1; cnt != visited.length && i<visited.length; i++) {
-            if(visited[i] != 0) continue;
-            Queue<Integer> q = new ArrayDeque<>();
-            q.add(i);
-            visited[i] = 1;
-            int color = 1;
-            while (cnt != visited.length && !q.isEmpty()) {
-                int size = q.size();
-                color = color==1?2:1;
-                while (cnt != visited.length && size-- != 0) {
-                    int rem = q.remove();
-                    for(int nbr : graph[rem]) {
-                        if(visited[nbr] == 0) {
-                            visited[nbr] = color;
-                            q.add(nbr);
-                            cnt++;
-                        } else {
-                            if(visited[nbr] != color) {
-                                p.write("IMPOSSIBLE");
-                                return;
-                            }
-                        }
-                    }
-                }
+        int t = sc.nextInt();
+        while (t-- != 0) {
+            long n = sc.nextLong();
+            long x = sc.nextLong();
+            if(n >= mod) {
+                System.out.println(0);
+            } else {
+                long ans = ((x%mod)*fact[(int)n])%mod;
+                System.out.println(ans);
             }
-        }
-
-        for(int i=1; i<visited.length; i++) {
-            p.write(visited[i] + " ");
         }
     }
 

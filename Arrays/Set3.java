@@ -157,7 +157,96 @@ public class Set3 {
         return strb.toString();
     }
 
+    /************************  1423. Maximum Points You Can Obtain from Cards  ************************************/
+    // https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards/
+    public int maxScore(int[] arr, int k) {
+        k=arr.length-k;
+        int sum = 0;
+        for(int v : arr) sum+=v;
+        int start = 0;
+        int end = k;
+        int csum = 0;
+        for(int i=0; i<k; i++) csum+=arr[i];
+        int minv = csum;
+        while(end < arr.length) {
+            csum+=arr[end++];
+            csum-=arr[start++];
+            minv = Math.min(csum, minv);
+        }
+        return sum-minv;
+    }
 
+    /************************  1546. Maximum Number of Non-Overlapping Subarrays With Sum Equals Target  ************************************/
+    // https://leetcode.com/problems/maximum-number-of-non-overlapping-subarrays-with-sum-equals-target/
+    public int maxNonOverlapping(int[] nums, int tar) {
+        HashMap<Integer, Integer> map = new HashMap<>();
+        map.put(0, 0);
+        int sum = 0;
+        int res = 0;
+        for(int val : nums) {
+            sum+=val;
+            if(map.containsKey(sum-tar)) {
+                res = Math.max(res, map.get(sum-tar)+1);
+            }
+            map.put(sum, res);
+        }
+        return res;
+    }
 
+    /************************  1208. Get Equal Substrings Within Budget  ************************************/
+    // https://leetcode.com/problems/get-equal-substrings-within-budget/
+    public int equalSubstring(String s, String t, int k) {
+        int n = s.length();
+        int start = 0, end = 0;
+        while(end < s.length()) {
+            k-=Math.abs(s.charAt(end)-t.charAt(end));
+            if(k < 0) {
+                k+=Math.abs(s.charAt(start) - t.charAt(start));
+                start++;
+            }
+            end++;
+        }
+        return end - start;
+    }
 
+    /************************  556. Next Greater Element III  ************************************/
+    // https://leetcode.com/problems/next-greater-element-iii/
+    public int nextGreaterElement(int n) {
+        char[] str = (n+"").toCharArray();
+//         find the dip point
+        int i = str.length - 2;
+        while(i >= 0 && str[i] >= str[i+1]) i--;
+        if(i == -1) return -1;
+//         find index to swap the dip point element with i.e just greater than the dip value;
+        int k = str.length - 1;
+        while(str[k] <= str[i]) k--;
+
+//         do swapping
+        char temp = str[i];
+        str[i] = str[k];
+        str[k] = temp;
+
+//         create the answer
+        StringBuilder res= new StringBuilder();
+        for(int j=0; j<=i; j++) res.append(str[j]);
+        for(int j=str.length - 1; j>i; j--) res.append(str[j]);
+        Long ans = Long.parseLong(res.toString());
+        return ans > (long)Integer.MAX_VALUE?-1:ans.intValue();
+    }
+
+    /************************  932. Beautiful Array  ************************************/
+    // https://leetcode.com/problems/beautiful-array/
+    public int[] beautifulArray(int n) {
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(1);
+        while(res.size() < n) {
+            ArrayList<Integer> temp = new ArrayList<>();
+            for(int v : res) if(2*v-1 <= n) temp.add(2*v-1);
+            for(int v : res) if(2*v <= n) temp.add(2*v);
+            res = temp;
+        }
+        int[] ans = new int[res.size()];
+        for(int i=0; i<ans.length; i++) ans[i] = res.get(i);
+        return ans;
+    }
 }
